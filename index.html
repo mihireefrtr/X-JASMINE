@@ -210,22 +210,6 @@
         .notice-item:last-child { border-bottom: none; }
         .notice-date { font-size: 0.75rem; color: #b026ff; margin-bottom: 5px; font-weight: 600; }
 
-        /* Group Chat Widget */
-        #chat-widget { position: fixed; bottom: 30px; right: 30px; width: 350px; height: 450px; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; display: flex; flex-direction: column; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5); z-index: 100; transform: translateY(120%); transition: transform 0.4s ease; }
-        #chat-widget.active { transform: translateY(0); }
-        .chat-header { padding: 15px; background: linear-gradient(90deg, rgba(0, 243, 255, 0.1), rgba(176, 38, 255, 0.1)); border-bottom: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px 20px 0 0; display: flex; justify-content: space-between; align-items: center; font-weight: 600; }
-        .chat-messages { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        .chat-input-area { padding: 15px; display: flex; gap: 10px; border-top: 1px solid rgba(255, 255, 255, 0.1); }
-        .chat-input { flex: 1; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); padding: 10px; border-radius: 8px; color: white; outline: none; }
-        .chat-input:focus { border-color: #00f3ff; }
-        .message { padding: 8px 12px; border-radius: 10px; font-size: 0.9rem; max-width: 85%; animation: fadeIn 0.3s ease; }
-        .message.received { background: rgba(255,255,255,0.05); align-self: flex-start; }
-        .message.sent { background: #00f3ff; color: #000; align-self: flex-end; font-weight: 500; }
-        .message-sender { font-size: 0.7rem; color: #b026ff; margin-bottom: 2px; }
-
-        .chat-toggle-btn { position: fixed; bottom: 30px; right: 30px; background: #00f3ff; color: #000; border: none; padding: 15px 25px; border-radius: 50px; font-weight: 600; cursor: pointer; z-index: 99; transition: all 0.3s ease; box-shadow: 0 0 20px rgba(0, 243, 255, 0.4); }
-        .chat-toggle-btn:hover { transform: translateY(-3px); box-shadow: 0 0 30px rgba(0, 243, 255, 0.6); }
-
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
         /* Ambient Glows */
@@ -234,9 +218,44 @@
         @keyframes pulse { 0% { transform: scale(1); opacity: 0.1; } 100% { transform: scale(1.2); opacity: 0.3; } }
         
         @media (max-width: 900px) { .dashboard { grid-template-columns: 1fr; } .header { flex-direction: column; align-items: flex-start; gap: 15px; } }
+
+        /* 🔥 SECRET DOUBLE-LAYER AUTH MODAL 🔥 */
+        #secret-auth-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(15px); z-index: 100000; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: 0.3s ease; }
+        #secret-auth-overlay.active { opacity: 1; visibility: visible; }
+        .secret-box { background: #111; border: 2px solid #ff4444; border-radius: 15px; padding: 40px; text-align: center; font-family: 'Courier New', monospace; box-shadow: 0 0 40px rgba(255,0,0,0.2); width: 350px; }
+        .secret-box h2 { color: #ff4444; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 2px; font-size: 1.5rem; }
+        .secret-box p { color: #fff; opacity: 0.6; margin-bottom: 20px; font-size: 0.9rem; }
+        .secret-input { background: #000; border: 1px solid #ff4444; color: #ff4444; padding: 12px; font-size: 1.5rem; letter-spacing: 8px; width: 100%; text-align: center; outline: none; margin-bottom: 20px; border-radius: 5px; }
+        .secret-input:focus { box-shadow: 0 0 15px rgba(255,0,0,0.4); }
+        .secret-btn { background: #ff4444; color: #fff; border: none; padding: 12px 30px; font-weight: bold; font-family: 'Courier New', monospace; cursor: pointer; transition: 0.3s; border-radius: 5px; width: 100%; font-size: 1.1rem; }
+        .secret-btn:hover { background: #cc0000; box-shadow: 0 0 20px rgba(255,0,0,0.6); }
+        #step-2-box { display: none; border-color: #00ff88; box-shadow: 0 0 40px rgba(0,255,0,0.2); }
+        #step-2-box h2, #step-2-box .secret-input, #step-2-box .secret-btn { color: #00ff88; border-color: #00ff88; }
+        #step-2-box .secret-btn { background: #00ff88; color: #000; }
+        #step-2-box .secret-input:focus { box-shadow: 0 0 15px rgba(0,255,0,0.4); }
     </style>
 </head>
 <body>
+
+    <div id="secret-trigger" style="position: fixed; bottom: 0; right: 0; width: 50px; height: 50px; z-index: 99999; cursor: default; background: transparent;" onclick="handleSecretClick()"></div>
+
+    <div id="secret-auth-overlay">
+        <div id="step-1-box" class="secret-box">
+            <h2>Layer-1 Locked</h2>
+            <p>Enter Master Passcode 1</p>
+            <input type="password" id="pass1-input" class="secret-input" autocomplete="off" placeholder="****">
+            <button class="secret-btn" onclick="verifyPass1()">Verify</button>
+            <button style="background:transparent; border:none; color:white; margin-top:15px; cursor:pointer; opacity:0.5; font-family: 'Courier New';" onclick="closeSecret()">Abort</button>
+        </div>
+        
+        <div id="step-2-box" class="secret-box">
+            <h2>Layer-2 Locked</h2>
+            <p>Enter Final Clearance Code</p>
+            <input type="password" id="pass2-input" class="secret-input" autocomplete="off" placeholder="****">
+            <button class="secret-btn" onclick="verifyPass2()">Access Portal</button>
+            <button style="background:transparent; border:none; color:white; margin-top:15px; cursor:pointer; opacity:0.5; font-family: 'Courier New';" onclick="closeSecret()">Abort</button>
+        </div>
+    </div>
 
     <div id="name-modal">
         <div class="modal-content">
@@ -349,46 +368,83 @@
         </aside>
     </div>
 
-    <div id="chat-widget">
-        <div class="chat-header">
-            <span>Universal Class Chat</span>
-            <div>
-                <span style="cursor:pointer; margin-right: 15px;" onclick="clearChat()" title="Clear Chat History">🗑️</span>
-                <span style="cursor:pointer;" onclick="toggleChat()">✖</span>
-            </div>
-        </div>
-        <div id="chat-messages-display" class="chat-messages">
-            </div>
-        <div class="chat-input-area">
-            <input type="text" id="chat-input" class="chat-input" placeholder="Type a message..." autocomplete="off">
-            <button class="upload-btn" onclick="sendChatMessage()">Send</button>
-        </div>
-    </div>
-    
-    <button class="chat-toggle-btn" id="chat-btn" onclick="toggleChat()">💬 Open Chat</button>
-
     <script>
         // --- 1. SUPABASE CONFIGURATION ---
         const SB_URL = "https://syrtilxcnldfxpdkcvbt.supabase.co";
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN5cnRpbHhjbmxkZnhwZGtjdmJ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4NDM1NzIsImV4cCI6MjA5MjQxOTU3Mn0.MsjkNDnIxd4B4DBgxl_pcN7FwVf5GmISNMYSMrhHj9E";
         const supabaseObj = supabase.createClient(SB_URL, SB_KEY);
 
-        // --- 2. State Initialization ---
+        // --- 🔥 2. SECRET TWO-FACTOR AUTH LOGIC 🔥 ---
+        let secretClicks = 0;
+        let secretTimeout;
+
+        function handleSecretClick() {
+            secretClicks++;
+            clearTimeout(secretTimeout);
+            
+            if (secretClicks >= 5) {
+                document.getElementById('secret-auth-overlay').classList.add('active');
+                document.getElementById('step-1-box').style.display = 'block';
+                document.getElementById('step-2-box').style.display = 'none';
+                document.getElementById('pass1-input').focus();
+                secretClicks = 0; 
+            } else {
+                secretTimeout = setTimeout(() => { secretClicks = 0; }, 1500);
+            }
+        }
+
+        function verifyPass1() {
+            const pass1 = document.getElementById('pass1-input').value;
+            if (pass1 === '6200') {
+                document.getElementById('step-1-box').style.display = 'none';
+                document.getElementById('step-2-box').style.display = 'block';
+                document.getElementById('pass2-input').focus();
+            } else {
+                alert("❌ Wrong Passcode! Intruder detected.");
+                closeSecret();
+            }
+        }
+
+        function verifyPass2() {
+            const pass2 = document.getElementById('pass2-input').value;
+            if (pass2 === '1999') {
+                window.location.href = 'student.html';
+            } else {
+                alert("❌ Wrong Passcode! Intruder detected.");
+                closeSecret();
+            }
+        }
+
+        function closeSecret() {
+            document.getElementById('secret-auth-overlay').classList.remove('active');
+            document.getElementById('pass1-input').value = '';
+            document.getElementById('pass2-input').value = '';
+            secretClicks = 0;
+        }
+
+        document.getElementById('pass1-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') verifyPass1();
+        });
+        document.getElementById('pass2-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') verifyPass2();
+        });
+
+
+        // --- 3. State Initialization ---
         let userName = sessionStorage.getItem('user_name') || '';
         let teacherAuthenticated = false;
         let localNotices = []; // For editing functionality
 
-        // --- 3. Initial Render & Page Load ---
+        // --- 4. Initial Render & Page Load ---
         document.addEventListener('DOMContentLoaded', () => {
             initializeName();
             updateTodayDate();
             loadTimetable();
             fetchResources();
             fetchNotices();
-            fetchChat();
         });
 
-        // --- 4. Name Entry Logic ---
+        // --- 5. Name Entry Logic ---
         function initializeName() {
             const modal = document.getElementById('name-modal');
             const welcomeSpan = document.querySelector('#welcome-text span');
@@ -428,7 +484,7 @@
             }, 100);
         }
 
-        // --- 5. Password Protection Logic ---
+        // --- 6. Password Protection Logic ---
         function verifyPassword() {
             const pass = document.getElementById('password-input').value;
             if (pass === '1440') {
@@ -449,7 +505,7 @@
             document.getElementById('password-input').value = '';
         }
 
-        // --- 6. Date & Timetable Integration ---
+        // --- 7. Date & Timetable Integration ---
         function updateTodayDate() {
             const now = new Date();
             const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -491,7 +547,7 @@
             });
         }
 
-        // --- 7. Functional Resource Hub (Supabase) ---
+        // --- 8. Functional Resource Hub (Supabase) ---
         async function fetchResources() {
             const list = document.getElementById('resource-list-display');
             const adminList = document.getElementById('resource-manager-list');
@@ -585,7 +641,7 @@
             }
         }
 
-        // --- 8. Notice Board & Teacher Admin Logic (Supabase) ---
+        // --- 9. Notice Board & Teacher Admin Logic (Supabase) ---
         async function fetchNotices() {
             const sidebarList = document.getElementById('notice-board-display');
             const adminList = document.getElementById('notice-manager-list');
@@ -645,54 +701,6 @@
             } 
         }
 
-        // --- 9. Functional Group Chat (Supabase) ---
-        async function fetchChat() {
-            const display = document.getElementById('chat-messages-display');
-            const { data, error } = await supabaseObj.from('messages').select('*').order('created_at', { ascending: true });
-            display.innerHTML = '';
-            
-            if (!data || data.length === 0) {
-                display.innerHTML = '<div style="text-align:center; color:rgba(255,255,255,0.4); margin-top:50px;">No messages yet. Start the conversation!</div>';
-                return;
-            }
-
-            data.forEach(m => {
-                const isSent = m.sender === userName;
-                display.innerHTML += `
-                    <div class="message ${isSent ? 'sent' : 'received'}">
-                        ${!isSent ? `<div class="message-sender">${m.sender}</div>` : ''}
-                        ${m.text}
-                    </div>
-                `;
-            });
-            display.scrollTop = display.scrollHeight; 
-        }
-        
-        async function sendChatMessage() {
-            const input = document.getElementById('chat-input');
-            const text = input.value.trim();
-            if (text === '') return;
-
-            // Clear input instantly for UI responsiveness
-            input.value = '';
-            
-            await supabaseObj.from('messages').insert([{ 
-                text: text, 
-                sender: userName || 'Student' 
-            }]);
-            
-            fetchChat();
-        }
-
-        async function clearChat() {
-            if (confirm('Are you sure you want to clear the entire chat history? Only teachers should do this.')) {
-                // To delete all rows, we need to match all. In Supabase we can do a broad match if RLS allows.
-                // Note: .neq('id', 0) is a trick to delete all rows.
-                await supabaseObj.from('messages').delete().neq('id', 0);
-                fetchChat();
-            }
-        }
-
         // --- 10. UI Interactions ---
         function switchTab(tabId) { 
             if (tabId === 'upload' && !teacherAuthenticated) {
@@ -709,23 +717,6 @@
             } else { 
                 document.querySelectorAll('.tab-btn')[1].classList.add('active'); 
                 document.getElementById('upload-tab').classList.add('active'); 
-            } 
-        }
-        
-        let chatOpen = false;
-        function toggleChat() { 
-            chatOpen = !chatOpen; 
-            const chat = document.getElementById('chat-widget'); 
-            const btn = document.getElementById('chat-btn'); 
-            if(chatOpen) { 
-                chat.classList.add('active'); 
-                btn.style.opacity = '0'; 
-                btn.style.pointerEvents = 'none'; 
-                fetchChat(); // Refresh chat on open
-            } else { 
-                chat.classList.remove('active'); 
-                btn.style.opacity = '1'; 
-                btn.style.pointerEvents = 'all'; 
             } 
         }
     </script>
