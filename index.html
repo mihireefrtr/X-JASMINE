@@ -395,334 +395,6 @@
             if (userName === '') {
                 modal.classList.add('active');
             } else {
-                     -webkit-text-fill-color: transparent;
-        }
-        .modal-input {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 15px;
-            border-radius: 10px;
-            color: white;
-            font-size: 1rem;
-            width: 100%;
-            outline: none;
-            margin-bottom: 20px;
-        }
-        .modal-input:focus { border-color: #00f3ff; }
-        .modal-btn {
-            background: #b026ff;
-            color: white;
-            border: none;
-            padding: 10px 30px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            box-shadow: 0 0 15px rgba(176, 38, 255, 0.4);
-            transition: all 0.3s ease;
-        }
-        .modal-btn:hover {
-            box-shadow: 0 0 25px rgba(176, 38, 255, 0.6);
-            transform: translateY(-2px);
-        }
-        .modal-cancel-btn {
-            background: transparent;
-            color: white;
-            border: 1px solid rgba(255,255,255,0.2);
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-left: 10px;
-            transition: all 0.3s ease;
-        }
-        .modal-cancel-btn:hover { background: rgba(255,255,255,0.1); }
-
-        /* Main Layout */
-        .dashboard {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 40px 20px;
-            display: grid;
-            grid-template-columns: 1fr 350px;
-            gap: 30px;
-        }
-
-        /* Glassmorphism Cards */
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 24px;
-            padding: 30px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .glass-panel:hover {
-            border-color: rgba(0, 243, 255, 0.2);
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(0, 243, 255, 0.1);
-        }
-
-        /* Header Section */
-        .header {
-            grid-column: 1 / -1;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        .header h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            background: linear-gradient(90deg, #00f3ff, #b026ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        #welcome-text { font-size: 1rem; color: rgba(255,255,255,0.6); margin-top: 5px; }
-        #welcome-text span { color: white; font-weight: 600; }
-        .teacher-badge {
-            background: rgba(176, 38, 255, 0.1);
-            border: 1px solid rgba(176, 38, 255, 0.3);
-            padding: 8px 16px;
-            border-radius: 50px;
-            font-size: 0.9rem;
-            color: #d470ff;
-        }
-
-        /* Left Column: Resources & Timetable */
-        .main-content { display: flex; flex-direction: column; gap: 30px; }
-
-        /* Timetable */
-        .section-title { font-size: 1.2rem; font-weight: 600; margin-bottom: 20px; color: #fff; display: flex; align-items: center; gap: 10px; }
-        #today-date-text { font-size: 0.9rem; color: #00f3ff; margin-left: 10px; }
-        .timetable-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; }
-        .time-slot { background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.05); padding: 15px; border-radius: 16px; text-align: center; transition: all 0.3s ease; }
-        .time-slot:hover { background: rgba(0, 243, 255, 0.1); border-color: rgba(0, 243, 255, 0.4); transform: translateY(-5px); }
-        .time { font-size: 0.8rem; color: #00f3ff; margin-bottom: 5px; }
-        .subject { font-weight: 600; font-size: 1.1rem; }
-        .teacher-name { font-size: 0.8rem; color: rgba(255,255,255,0.6); margin-top: 3px; }
-
-        /* Resource Hub (Tabs) */
-        .tabs { display: flex; gap: 15px; margin-bottom: 25px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 15px; }
-        .tab-btn { background: none; border: none; color: rgba(255, 255, 255, 0.5); font-size: 1rem; cursor: pointer; padding: 8px 16px; border-radius: 8px; transition: all 0.3s ease; }
-        .tab-btn.active { background: rgba(0, 243, 255, 0.1); color: #00f3ff; border: 1px solid rgba(0, 243, 255, 0.2); }
-        .tab-content { display: none; animation: fadeIn 0.4s ease; }
-        .tab-content.active { display: block; }
-
-        /* Resource/Notice Forms */
-        .form-section { background: rgba(0, 0, 0, 0.1); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 20px; }
-        .form-section h3 { font-size: 1.1rem; margin-bottom: 15px; }
-        .input-group { margin-bottom: 15px; }
-        .input-label { display: block; font-size: 0.8rem; color: rgba(255,255,255,0.6); margin-bottom: 5px; }
-        .styled-input { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); padding: 10px; border-radius: 8px; color: white; width: 100%; outline: none; }
-        .styled-input:focus { border-color: #b026ff; }
-        .styled-textarea { resize: vertical; min-height: 80px; }
-        
-        /* Buttons */
-        .upload-btn { background: #b026ff; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
-        .upload-btn:hover { background: #d470ff; transform: scale(1.03); }
-        .notice-action-btn { font-size: 0.8rem; padding: 5px 10px; border-radius: 5px; margin-left: 5px; cursor: pointer; border: none; }
-        .edit-notice-btn { background: #ffaa00; color: #000; }
-        .delete-notice-btn { background: #ff4444; color: white; }
-
-        /* Resource List */
-        .resource-list { display: flex; flex-direction: column; gap: 15px; }
-        .resource-item { display: flex; justify-content: space-between; align-items: center; background: rgba(0, 0, 0, 0.2); padding: 15px 20px; border-radius: 12px; border-left: 4px solid #00f3ff; }
-        .resource-info p { font-size: 0.8rem; color: rgba(255, 255, 255, 0.5); }
-        .download-btn { background: rgba(0, 243, 255, 0.1); border: 1px solid #00f3ff; color: #00f3ff; padding: 8px 16px; border-radius: 8px; cursor: pointer; text-decoration: none; transition: all 0.3s ease; }
-        .download-btn:hover { background: #00f3ff; color: #000; box-shadow: 0 0 15px rgba(0, 243, 255, 0.5); }
-
-        /* NCERT Banner */
-        .ncert-banner { background: rgba(0, 243, 255, 0.05); border: 1px solid rgba(0, 243, 255, 0.3); border-radius: 12px; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .ncert-banner h4 { color: #00f3ff; margin-bottom: 5px; display: flex; align-items: center; gap: 8px; }
-        .ncert-banner p { font-size: 0.8rem; color: rgba(255,255,255,0.7); }
-
-        /* Sidebar: Notice Board */
-        .notice-board { height: fit-content; }
-        .notice-item { padding: 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
-        .notice-item:last-child { border-bottom: none; }
-        .notice-date { font-size: 0.75rem; color: #b026ff; margin-bottom: 5px; font-weight: 600; }
-
-        /* Group Chat Widget */
-        #chat-widget { position: fixed; bottom: 30px; right: 30px; width: 350px; height: 450px; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; display: flex; flex-direction: column; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5); z-index: 100; transform: translateY(120%); transition: transform 0.4s ease; }
-        #chat-widget.active { transform: translateY(0); }
-        .chat-header { padding: 15px; background: linear-gradient(90deg, rgba(0, 243, 255, 0.1), rgba(176, 38, 255, 0.1)); border-bottom: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px 20px 0 0; display: flex; justify-content: space-between; align-items: center; font-weight: 600; }
-        .chat-messages { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        .chat-input-area { padding: 15px; display: flex; gap: 10px; border-top: 1px solid rgba(255, 255, 255, 0.1); }
-        .chat-input { flex: 1; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); padding: 10px; border-radius: 8px; color: white; outline: none; }
-        .chat-input:focus { border-color: #00f3ff; }
-        .message { padding: 8px 12px; border-radius: 10px; font-size: 0.9rem; max-width: 85%; animation: fadeIn 0.3s ease; }
-        .message.received { background: rgba(255,255,255,0.05); align-self: flex-start; }
-        .message.sent { background: #00f3ff; color: #000; align-self: flex-end; font-weight: 500; }
-        .message-sender { font-size: 0.7rem; color: #b026ff; margin-bottom: 2px; }
-
-        .chat-toggle-btn { position: fixed; bottom: 30px; right: 30px; background: #00f3ff; color: #000; border: none; padding: 15px 25px; border-radius: 50px; font-weight: 600; cursor: pointer; z-index: 99; transition: all 0.3s ease; box-shadow: 0 0 20px rgba(0, 243, 255, 0.4); }
-        .chat-toggle-btn:hover { transform: translateY(-3px); box-shadow: 0 0 30px rgba(0, 243, 255, 0.6); }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        /* Ambient Glows */
-        .glow-orb { position: fixed; width: 400px; height: 400px; background: #00f3ff; border-radius: 50%; filter: blur(150px); opacity: 0.2; top: -100px; left: -100px; z-index: -1; animation: pulse 8s infinite alternate ease-in-out; }
-        .glow-orb.purple { background: #b026ff; top: auto; bottom: -100px; right: -100px; animation-delay: -4s; }
-        @keyframes pulse { 0% { transform: scale(1); opacity: 0.1; } 100% { transform: scale(1.2); opacity: 0.3; } }
-        
-        @media (max-width: 900px) { .dashboard { grid-template-columns: 1fr; } .header { flex-direction: column; align-items: flex-start; gap: 15px; } }
-    </style>
-</head>
-<body>
-
-    <div id="name-modal">
-        <div class="modal-content">
-            <h2>Welcome to your Class Portal</h2>
-            <p style="color: rgba(255,255,255,0.6); margin-bottom: 20px;">Please enter your name to personalize the experience.</p>
-            <input type="text" id="name-input" class="modal-input" placeholder="Your Name" autocomplete="off">
-            <button id="submit-name" class="modal-btn" onclick="saveName()">Let's Go!</button>
-        </div>
-    </div>
-
-    <div id="password-modal">
-        <div class="modal-content">
-            <h2>Teacher Authentication</h2>
-            <p style="color: rgba(255,255,255,0.6); margin-bottom: 20px;">Please enter the passcode to access admin tools.</p>
-            <input type="password" id="password-input" class="modal-input" placeholder="Passcode" autocomplete="off">
-            <button class="modal-btn" onclick="verifyPassword()">Unlock</button>
-            <button class="modal-cancel-btn" onclick="closePasswordModal()">Cancel</button>
-        </div>
-    </div>
-
-    <div class="glow-orb"></div>
-    <div class="glow-orb purple"></div>
-
-    <div class="dashboard">
-        <header class="header">
-            <div>
-                <h1>Class 10 JASMINE Portal</h1>
-                <p id="welcome-text">Welcome back, <span></span> <i style="cursor:pointer; font-style:normal; margin-left:8px;" onclick="resetName()" title="Change Name">✏️</i></p>
-            </div>
-            <div class="teacher-badge">
-                 Class Teacher: Choudhary Ritesh
-            </div>
-        </header>
-
-        <main class="main-content">
-            
-            <section class="glass-panel">
-                <h2 class="section-title">📅 Today's Timetable <span id="today-date-text"></span></h2>
-                <div id="timetable-display" class="timetable-grid">
-                    </div>
-            </section>
-
-            <section class="glass-panel">
-                <div class="tabs">
-                    <button class="tab-btn active" onclick="switchTab('download')">📥 Download Resources</button>
-                    <button class="tab-btn" onclick="switchTab('upload')">📤 Teacher Admin</button>
-                </div>
-
-                <div id="download-tab" class="tab-content active">
-                    
-                    <div class="ncert-banner">
-                        <div>
-                            <h4>📚 Official NCERT Books</h4>
-                            <p>Direct link to the national portal for all Class 10 subjects.</p>
-                        </div>
-                        <a href="https://ncert.nic.in/textbook.php" target="_blank" class="download-btn">Open Portal</a>
-                    </div>
-
-                    <div id="resource-list-display" class="resource-list">
-                        </div>
-                </div>
-
-                <div id="upload-tab" class="tab-content">
-                    
-                    <div class="form-section">
-                        <h3>📤 Add New Resource</h3>
-                        <div class="input-group">
-                            <label class="input-label">Teacher Name</label>
-                            <input type="text" id="resource-teacher-name" class="styled-input" placeholder="e.g., Mr. Amit Yadav">
-                        </div>
-                        <div class="input-group">
-                            <label class="input-label">Resource Title</label>
-                            <input type="text" id="resource-title" class="styled-input" placeholder="e.g., Physics Assignment 3">
-                        </div>
-                        <div class="input-group">
-                            <label class="input-label">Select File</label>
-                            <input type="file" id="resource-file" class="styled-input">
-                        </div>
-                        <button class="upload-btn" onclick="handleFileUpload()">Add Resource</button>
-                        <p id="upload-status" style="margin-top:10px; font-size:0.9rem;"></p>
-                    </div>
-
-                    <div class="form-section">
-                        <h3>🗂️ Manage Resources</h3>
-                        <div id="resource-manager-list" style="margin-top:15px; font-size:0.9rem;">
-                            </div>
-                    </div>
-
-                    <div class="form-section">
-                        <h3>📌 Manage Notices</h3>
-                        <div class="input-group">
-                            <label class="input-label">Notice Content</label>
-                            <textarea id="notice-content" class="styled-input styled-textarea" placeholder="Type new notice here..."></textarea>
-                        </div>
-                        <input type="hidden" id="editing-notice-id">
-                        <button class="upload-btn" onclick="addOrEditNotice()">Add Notice</button>
-                        <div id="notice-manager-list" style="margin-top:20px; font-size:0.9rem;">
-                            </div>
-                    </div>
-
-                </div>
-            </section>
-
-        </main>
-
-        <aside class="glass-panel notice-board">
-            <h2 class="section-title">📌 Official Notices</h2>
-            <div id="notice-board-display">
-                </div>
-        </aside>
-    </div>
-
-    <div id="chat-widget">
-        <div class="chat-header">
-            <span>Universal Class Chat</span>
-            <div>
-                <span style="cursor:pointer; margin-right: 15px;" onclick="clearChat()" title="Clear Chat History">🗑️</span>
-                <span style="cursor:pointer;" onclick="toggleChat()">✖</span>
-            </div>
-        </div>
-        <div id="chat-messages-display" class="chat-messages">
-            </div>
-        <div class="chat-input-area">
-            <input type="text" id="chat-input" class="chat-input" placeholder="Type a message..." autocomplete="off">
-            <button class="upload-btn" onclick="sendChatMessage()">Send</button>
-        </div>
-    </div>
-    
-    <button class="chat-toggle-btn" id="chat-btn" onclick="toggleChat()">💬 Open Chat</button>
-
-    <script>
-        // --- 1. State & Storage Initialization ---
-        let userName = sessionStorage.getItem('user_name') || '';
-        let resources = JSON.parse(localStorage.getItem('class_resources')) || [];
-        let notices = JSON.parse(localStorage.getItem('class_notices')) || [];
-        let messages = JSON.parse(localStorage.getItem('chat_messages')) || [];
-        let teacherAuthenticated = false;
-
-        // --- 2. Initial Render & Page Load ---
-        document.addEventListener('DOMContentLoaded', () => {
-            initializeName();
-            updateTodayDate();
-            loadTimetable();
-            renderResources();
-            renderNotices();
-            renderChat();
-        });
-
-        // --- 3. Name Entry Logic ---
-        function initializeName() {
-            const modal = document.getElementById('name-modal');
-            const welcomeSpan = document.querySelector('#welcome-text span');
-            if (userName === '') {
-                modal.classList.add('active');
-            } else {
                 welcomeSpan.textContent = '';
                 typewriter(userName, welcomeSpan);
             }
@@ -756,7 +428,7 @@
             }, 100);
         }
 
-        // --- 4. Password Protection Logic ---
+        // --- 5. Password Protection Logic ---
         function verifyPassword() {
             const pass = document.getElementById('password-input').value;
             if (pass === '1440') {
@@ -777,7 +449,7 @@
             document.getElementById('password-input').value = '';
         }
 
-        // --- 5. Date & Timetable Integration ---
+        // --- 6. Date & Timetable Integration ---
         function updateTodayDate() {
             const now = new Date();
             const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -819,32 +491,34 @@
             });
         }
 
-        // --- 6. Functional Resource Hub ---
-        function renderResources() {
+        // --- 7. Functional Resource Hub (Supabase) ---
+        async function fetchResources() {
             const list = document.getElementById('resource-list-display');
             const adminList = document.getElementById('resource-manager-list');
             list.innerHTML = '';
             adminList.innerHTML = '';
+
+            const { data, error } = await supabaseObj.from('Resources').select('*').order('created_at', { ascending: false });
             
-            if (resources.length === 0) {
+            if (!data || data.length === 0) {
                 list.innerHTML = '<p style="color: rgba(255,255,255,0.5); text-align: center; padding: 20px;">No resources have been uploaded yet.</p>';
                 adminList.innerHTML = '<p style="color: rgba(255,255,255,0.5); padding: 10px;">No resources to manage.</p>';
                 return;
             }
 
-            resources.forEach(res => {
-                const fileHref = res.fileData ? res.fileData : '#';
-                const downloadAttr = res.fileName ? `download="${res.fileName}"` : '';
+            data.forEach(res => {
+                const fileHref = res.url ? res.url : '#';
+                const downloadAttr = res.file_Name ? `download="${res.file_Name}"` : '';
                 
                 // Student View (Without Delete Button)
                 list.innerHTML += `
                     <div class="resource-item">
                         <div class="resource-info">
                             <h4>${res.title}</h4>
-                            <p>by ${res.teacher} • ${res.size}</p>
+                            <p>by ${res.teacher} • ${res.file_Name}</p>
                         </div>
                         <div style="display: flex; gap: 10px; align-items: center;">
-                            <a href="${fileHref}" ${downloadAttr} class="download-btn">Download</a>
+                            <a href="${fileHref}" ${downloadAttr} target="_blank" class="download-btn">Download</a>
                         </div>
                     </div>
                 `;
@@ -859,123 +533,130 @@
             });
         }
         
-        function handleFileUpload() {
-            const teacherNameInput = document.getElementById('resource-teacher-name'); 
-            const titleInput = document.getElementById('resource-title');
-            const fileInput = document.getElementById('resource-file');
+        async function handleFileUpload() {
+            const teacherNameInput = document.getElementById('resource-teacher-name').value; 
+            const titleInput = document.getElementById('resource-title').value;
+            const fileInput = document.getElementById('resource-file').files[0];
             const status = document.getElementById('upload-status');
             
-            if (titleInput.value.trim() === '' || !fileInput.files[0]) { 
+            if (titleInput.trim() === '' || !fileInput) { 
                 status.textContent = '❌ Error: Enter title and select a file.'; 
                 status.style.color = '#ff4444'; 
                 return; 
             }
 
-            const file = fileInput.files[0];
-            const reader = new FileReader();
+            status.textContent = 'Uploading to Cloud... ⏳';
+            status.style.color = '#ffaa00';
 
-            reader.onload = function(e) {
-                const base64Data = e.target.result;
-                const newRes = { 
-                    id: Date.now(), 
-                    title: titleInput.value.trim(), 
-                    size: file.name, 
-                    teacher: teacherNameInput.value.trim() || userName || 'Teacher', 
-                    fileName: file.name,
-                    fileData: base64Data 
-                };
-                
-                resources.unshift(newRes); 
-                try {
-                    localStorage.setItem('class_resources', JSON.stringify(resources));
-                    renderResources();
-                    titleInput.value = ''; fileInput.value = ''; teacherNameInput.value = ''; 
-                    status.textContent = '✅ File added successfully!'; 
-                    status.style.color = '#00ff88';
-                } catch(err) {
-                    status.textContent = '❌ Error: File is too large for local browser storage. Try a smaller file.';
-                    status.style.color = '#ff4444';
-                    resources.shift(); 
-                }
-            };
-            
-            reader.readAsDataURL(file);
-        }
+            const filePath = `portal/${Date.now()}_${fileInput.name}`;
+            const { data: uploadData, error: uploadError } = await supabaseObj.storage.from('class-files').upload(filePath, fileInput);
 
-        function deleteResource(id) {
-            if (confirm('Are you sure you want to delete this resource?')) {
-                resources = resources.filter(item => item.id != id);
-                localStorage.setItem('class_resources', JSON.stringify(resources));
-                renderResources();
+            if (uploadError) {
+                status.textContent = '❌ Upload Failed: ' + uploadError.message;
+                status.style.color = '#ff4444';
+                return;
+            }
+
+            const { data: urlData } = supabaseObj.storage.from('class-files').getPublicUrl(filePath);
+
+            const { error: dbError } = await supabaseObj.from('Resources').insert([{
+                title: titleInput.trim(),
+                teacher: teacherNameInput.trim() || userName || 'Teacher',
+                file_Name: fileInput.name,
+                url: urlData.publicUrl
+            }]);
+
+            if (!dbError) {
+                status.textContent = '✅ File added successfully!'; 
+                status.style.color = '#00ff88';
+                document.getElementById('resource-title').value = '';
+                document.getElementById('resource-file').value = '';
+                fetchResources();
+            } else {
+                status.textContent = '❌ Database Error: ' + dbError.message;
+                status.style.color = '#ff4444';
             }
         }
 
-        // --- 7. Notice Board & Teacher Admin Logic ---
-        function renderNotices() {
+        async function deleteResource(id) {
+            if (confirm('Are you sure you want to delete this resource?')) {
+                await supabaseObj.from('Resources').delete().eq('id', id);
+                fetchResources();
+            }
+        }
+
+        // --- 8. Notice Board & Teacher Admin Logic (Supabase) ---
+        async function fetchNotices() {
             const sidebarList = document.getElementById('notice-board-display');
             const adminList = document.getElementById('notice-manager-list');
             sidebarList.innerHTML = ''; adminList.innerHTML = '';
 
-            if (notices.length === 0) {
+            const { data, error } = await supabaseObj.from('notices').select('*').order('created_at', { ascending: false });
+
+            if (!data || data.length === 0) {
                 sidebarList.innerHTML = '<p style="color: rgba(255,255,255,0.5); padding: 15px;">No official notices at the moment.</p>';
                 return;
             }
 
-            notices.sort((a,b) => b.id - a.id).forEach(n => {
-                sidebarList.innerHTML += `<div class="notice-item"><div class="notice-date">${n.date}</div><p>${n.text}</p><small>- ${n.teacher}</small></div>`;
+            localNotices = data; // Save locally for editing
+
+            data.forEach(n => {
+                const displayDate = new Date(n.created_at).toLocaleDateString();
+                sidebarList.innerHTML += `<div class="notice-item"><div class="notice-date">${displayDate}</div><p>${n.text}</p><small>- ${n.teacher}</small></div>`;
                 adminList.innerHTML += `<p style="padding: 10px 0; border-bottom:1px solid rgba(255,255,255,0.05);">${n.text.substring(0,50)}... <button class="notice-action-btn edit-notice-btn" onclick="editNotice(${n.id})">Edit</button><button class="notice-action-btn delete-notice-btn" onclick="deleteNotice(${n.id})">Delete</button></p>`;
             });
         }
         
-        function addOrEditNotice() {
+        async function addOrEditNotice() {
             const input = document.getElementById('notice-content');
             const editingIdInput = document.getElementById('editing-notice-id');
             const isEditing = editingIdInput.value !== '';
-            if (input.value.trim() === '') return;
+            const textValue = input.value.trim();
+
+            if (textValue === '') return;
             
             if (isEditing) {
-                const n = notices.find(item => item.id == editingIdInput.value);
-                n.text = input.value.trim();
+                await supabaseObj.from('notices').update({ text: textValue }).eq('id', editingIdInput.value);
                 editingIdInput.value = '';
-                document.querySelector('#upload-tab .upload-btn').textContent = 'Add Notice';
+                document.querySelector('#upload-tab .upload-btn:nth-of-type(2)').textContent = 'Add Notice';
             } else {
-                notices.push({ 
-                    id: Date.now(), 
-                    text: input.value.trim(), 
-                    date: new Date().toLocaleDateString(), 
+                await supabaseObj.from('notices').insert([{ 
+                    text: textValue, 
                     teacher: userName || 'Teacher' 
-                });
+                }]);
             }
-            localStorage.setItem('class_notices', JSON.stringify(notices));
-            renderNotices(); input.value = '';
+            input.value = '';
+            fetchNotices();
         }
         
         function editNotice(id) {
-            const n = notices.find(item => item.id == id);
-            document.getElementById('notice-content').value = n.text;
-            document.getElementById('editing-notice-id').value = id;
-            document.querySelector('#upload-tab .upload-btn').textContent = 'Update Notice';
+            const n = localNotices.find(item => item.id == id);
+            if(n) {
+                document.getElementById('notice-content').value = n.text;
+                document.getElementById('editing-notice-id').value = id;
+                document.querySelector('#upload-tab .upload-btn:nth-of-type(2)').textContent = 'Update Notice';
+            }
         }
         
-        function deleteNotice(id) { 
+        async function deleteNotice(id) { 
             if (confirm('Delete this notice?')) { 
-                notices = notices.filter(item => item.id != id); 
-                localStorage.setItem('class_notices', JSON.stringify(notices)); 
-                renderNotices(); 
+                await supabaseObj.from('notices').delete().eq('id', id);
+                fetchNotices(); 
             } 
         }
 
-        // --- 8. Functional Group Chat ---
-        function renderChat() {
+        // --- 9. Functional Group Chat (Supabase) ---
+        async function fetchChat() {
             const display = document.getElementById('chat-messages-display');
+            const { data, error } = await supabaseObj.from('messages').select('*').order('created_at', { ascending: true });
             display.innerHTML = '';
             
-            if (messages.length === 0) {
+            if (!data || data.length === 0) {
                 display.innerHTML = '<div style="text-align:center; color:rgba(255,255,255,0.4); margin-top:50px;">No messages yet. Start the conversation!</div>';
                 return;
             }
 
-            messages.forEach(m => {
+            data.forEach(m => {
                 const isSent = m.sender === userName;
                 display.innerHTML += `
                     <div class="message ${isSent ? 'sent' : 'received'}">
@@ -987,24 +668,32 @@
             display.scrollTop = display.scrollHeight; 
         }
         
-        function sendChatMessage() {
+        async function sendChatMessage() {
             const input = document.getElementById('chat-input');
             const text = input.value.trim();
             if (text === '') return;
-            messages.push({ id: Date.now(), sender: userName || 'Student', text: text });
-            localStorage.setItem('chat_messages', JSON.stringify(messages));
-            renderChat(); input.value = '';
+
+            // Clear input instantly for UI responsiveness
+            input.value = '';
+            
+            await supabaseObj.from('messages').insert([{ 
+                text: text, 
+                sender: userName || 'Student' 
+            }]);
+            
+            fetchChat();
         }
 
-        function clearChat() {
-            if (confirm('Are you sure you want to clear the entire chat history?')) {
-                messages = [];
-                localStorage.setItem('chat_messages', JSON.stringify(messages));
-                renderChat();
+        async function clearChat() {
+            if (confirm('Are you sure you want to clear the entire chat history? Only teachers should do this.')) {
+                // To delete all rows, we need to match all. In Supabase we can do a broad match if RLS allows.
+                // Note: .neq('id', 0) is a trick to delete all rows.
+                await supabaseObj.from('messages').delete().neq('id', 0);
+                fetchChat();
             }
         }
 
-        // --- 9. UI Interactions ---
+        // --- 10. UI Interactions ---
         function switchTab(tabId) { 
             if (tabId === 'upload' && !teacherAuthenticated) {
                 document.getElementById('password-modal').classList.add('active');
@@ -1032,35 +721,13 @@
                 chat.classList.add('active'); 
                 btn.style.opacity = '0'; 
                 btn.style.pointerEvents = 'none'; 
+                fetchChat(); // Refresh chat on open
             } else { 
                 chat.classList.remove('active'); 
                 btn.style.opacity = '1'; 
                 btn.style.pointerEvents = 'all'; 
             } 
         }
-    </script>
-    <script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
-
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  const firebaseConfig = {
-    apiKey: "AIzaSyDY9xFLJ5DlbqdEg6jD1yC2qiEPPm7m4v4",
-    authDomain: "x-jasmine.firebaseapp.com",
-    projectId: "x-jasmine",
-    storageBucket: "x-jasmine.firebasestorage.app",
-    messagingSenderId: "106813032034",
-    appId: "1:106813032034:web:c2afbf77381286c7f2733b",
-    measurementId: "G-X9DSDX5QDY"
-  };
-
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
     </script>
 </body>
 </html>
