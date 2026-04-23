@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>10 JASMINE - Backbenchers' Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        /* Base & Resets */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background: #0f172a; background-image: radial-gradient(circle at 15% 50%, rgba(0, 243, 255, 0.08) 0%, transparent 50%), radial-gradient(circle at 85% 30%, rgba(176, 38, 255, 0.08) 0%, transparent 50%); color: #fff; min-height: 100vh; overflow-x: hidden; position: relative; }
+
+        /* Modals */
+        #name-modal { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(15px); z-index: 1000; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: 0.5s ease; }
+        #name-modal.active { opacity: 1; visibility: visible; }
+        .modal-content { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 40px; text-align: center; box-shadow: 0 0 40px rgba(0, 243, 255, 0.3); transform: scale(0.9); transition: 0.4s ease; }
+        .active .modal-content { transform: scale(1); }
+        .modal-content h2 { margin-bottom: 20px; background: linear-gradient(90deg, #00f3ff, #b026ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .modal-input { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 10px; color: white; font-size: 1rem; width: 100%; outline: none; margin-bottom: 20px; text-align: center; }
+        .modal-input:focus { border-color: #00f3ff; }
+        .modal-btn { background: #b026ff; color: white; border: none; padding: 12px 30px; border-radius: 8px; font-weight: 700; cursor: pointer; box-shadow: 0 0 15px rgba(176, 38, 255, 0.4); transition: 0.3s; width: 100%; }
+        .modal-btn:hover { box-shadow: 0 0 25px rgba(176, 38, 255, 0.6); transform: translateY(-2px); }
+        
+        /* PANIC BUTTON & HACKER SCREEN */
+        #panic-btn { position: fixed; top: 20px; right: 20px; background: #ff0000; color: #fff; font-weight: 800; padding: 10px 20px; border-radius: 50px; border: 2px solid #fff; cursor: pointer; z-index: 999; box-shadow: 0 0 20px rgba(255,0,0,0.6); animation: pulseRed 2s infinite; }
+        @keyframes pulseRed { 0% { transform: scale(1); } 50% { transform: scale(1.05); box-shadow: 0 0 30px rgba(255,0,0,0.8); } 100% { transform: scale(1); } }
+        #panic-screen { display: none; position: fixed; inset: 0; background: #fff; color: #000; z-index: 9999; padding: 40px; font-family: 'Times New Roman', serif; overflow-y: auto; }
+        #hacker-screen { display: none; position: fixed; inset: 0; background: #000; color: #0f0; font-family: 'Courier New', Courier, monospace; z-index: 99999; padding: 40px; font-size: 1.2rem; overflow-y: auto; text-align: left; }
+
+        /* Layout */
+        .dashboard { max-width: 1200px; margin: 0 auto; padding: 60px 20px 40px; display: grid; grid-template-columns: 1fr 350px; gap: 30px; }
+        .glass-panel { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 24px; padding: 30px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); transition: 0.3s ease; }
+        .glass-panel:hover { border-color: rgba(0, 243, 255, 0.2); }
+
+        /* Header & Quotes */
+        .header { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .header h1 { font-size: 2.8rem; font-weight: 800; background: linear-gradient(90deg, #00f3ff, #b026ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .quote-bar { grid-column: 1 / -1; text-align: center; font-style: italic; font-size: 1.1rem; color: #00f3ff; margin-bottom: 20px; padding: 15px; background: rgba(0, 243, 255, 0.05); border-radius: 12px; border: 1px dashed rgba(0, 243, 255, 0.2); }
+        
+        /* Timetable */
+        .main-content { display: flex; flex-direction: column; gap: 30px; }
+        .section-title { font-size: 1.2rem; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .timetable-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; }
+        .time-slot { background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.05); padding: 15px; border-radius: 16px; text-align: center; transition: 0.3s; }
+        .time-slot:hover { background: rgba(0, 243, 255, 0.1); border-color: #00f3ff; transform: translateY(-5px); }
+        
+        /* Tabs */
+        .tabs { display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 15px; overflow-x: auto; }
+        .tab-btn { background: none; border: none; color: rgba(255, 255, 255, 0.5); font-size: 1rem; cursor: pointer; padding: 10px 20px; border-radius: 8px; transition: 0.3s; font-weight: 600; white-space: nowrap; }
+        .tab-btn.active { background: rgba(176, 38, 255, 0.15); color: #fff; border: 1px solid #b026ff; }
+        .tab-content { display: none; animation: fadeIn 0.4s ease; }
+        .tab-content.active { display: block; }
+
+        /* Forms, Buttons & Boxes */
+        .form-section { background: rgba(0, 0, 0, 0.2); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 20px; }
+        .chill-box { background: linear-gradient(135deg, rgba(176,38,255,0.1), rgba(0,243,255,0.1)); border: 1px dashed #b026ff; padding: 20px; border-radius: 15px; text-align: center; margin-bottom: 20px; }
+        .styled-input { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); padding: 12px; border-radius: 8px; color: white; width: 100%; outline: none; margin-bottom: 10px; }
+        .styled-input:focus { border-color: #b026ff; }
+        .upload-btn { background: #b026ff; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.3s; width: 100%; }
+        .upload-btn:hover { background: #d470ff; transform: scale(1.02); }
+        .action-btn { background: #00f3ff; color: #000; padding: 10px 20px; border-radius: 50px; font-weight: 800; border: none; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+        .action-btn:active { transform: scale(0.9); }
+
+        /* Resources & Notices */
+        .resource-item { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3); padding: 15px 20px; border-radius: 12px; border-left: 4px solid #00f3ff; margin-bottom: 10px; }
+        .download-btn { background: rgba(0, 243, 255, 0.1); border: 1px solid #00f3ff; color: #00f3ff; padding: 8px 16px; border-radius: 8px; text-decoration: none; transition: 0.3s; }
+        .del-note-btn { background: rgba(255, 0, 0, 0.1); border: 1px solid #ff4444; color: #ff4444; padding: 8px 16px; border-radius: 8px; text-decoration: none; transition: 0.3s; cursor: pointer; margin-left: 5px; font-weight: 600; }
+        .del-note-btn:hover { background: #ff4444; color: #fff; }
+        .notice-item { padding: 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); position: relative; }
+        .confession-card { background: rgba(0,0,0,0.3); border-left: 4px solid #ff4444; padding: 15px; border-radius: 10px; margin-bottom: 10px; font-style: italic; }
+
+        /* Report Card Styling */
+        .report-card { background: #fff; color: #000; padding: 15px; border-radius: 10px; margin-top: 15px; font-family: 'Courier New', Courier, monospace; display: none; text-align: left; }
+        .report-card h4 { text-align: center; border-bottom: 2px dashed #000; padding-bottom: 5px; margin-bottom: 10px; }
+        .report-row { display: flex; justify-content: space-between; margin-bottom: 5px; border-bottom: 1px solid #eee; padding-bottom: 3px; }
+
+        /* Chat Widget */
+        #chat-widget { position: fixed; bottom: 30px; right: 30px; width: 350px; height: 450px; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; display: flex; flex-direction: column; z-index: 100; transform: translateY(120%); transition: 0.4s ease; box-shadow: 0 20px 40px rgba(0,0,0,0.5);}
+        #chat-widget.active { transform: translateY(0); }
+        .chat-header { padding: 15px; background: linear-gradient(90deg, #00f3ff, #b026ff); border-radius: 20px 20px 0 0; font-weight: 700; display: flex; justify-content: space-between; color: #000; }
+        .chat-messages { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .message { padding: 10px 15px; border-radius: 12px; font-size: 0.9rem; max-width: 85%; }
+        .message.received { background: rgba(255,255,255,0.08); align-self: flex-start; border-bottom-left-radius: 2px;}
+        .message.sent { background: #00f3ff; color: #000; align-self: flex-end; border-bottom-right-radius: 2px; font-weight: 500;}
+        .chat-input-area { padding: 15px; display: flex; gap: 10px; border-top: 1px solid rgba(255, 255, 255, 0.1); }
+        .chat-toggle-btn { position: fixed; bottom: 30px; right: 30px; background: #b026ff; color: #fff; border: none; padding: 15px 30px; border-radius: 50px; font-weight: 700; cursor: pointer; z-index: 99; transition: 0.3s; box-shadow: 0 0 20px rgba(176, 38, 255, 0.5); }
+        
+        .glow-orb { position: fixed; width: 400px; height: 400px; background: #00f3ff; border-radius: 50%; filter: blur(150px); opacity: 0.15; top: -100px; left: -100px; z-index: -1; }
+        .glow-orb.purple { background: #b026ff; top: auto; bottom: -100px; right: -100px; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <button id="panic-btn" onclick="activatePanic()">🚨 PANIC</button>
+    
+    <div id="panic-screen">
+        <h1 style="font-family: Arial; border-bottom: 1px solid #ccc; padding-bottom: 10px;">Photosynthesis</h1>
+        <p style="margin-top: 20px; font-size: 1.1rem; line-height: 1.6;">Photosynthesis is a system of biological processes by which photosynthetic organisms convert light energy into chemical energy. The overall equation is: <b>6CO2 + 6H2O → C6H12O6 + 6O2</b></p>
+        <button style="margin-top: 50px; padding: 10px; background:#ddd; border:1px solid #999; cursor:pointer;" onclick="deactivatePanic()">Resume Reading</button>
+    </div>
+
+    <div id="hacker-screen" onclick="closeHackerPrank()">
+        <div id="hacker-text"></div>
+    </div>
+
+    <div id="name-modal">
+        <div class="modal-content">
+            <h2>Welcome Backbencher! 🎒</h2>
+            <p style="color: rgba(255,255,255,0.6); margin-bottom: 20px;">Class 10 ka aakhri saal hai, naam toh bata de bhai!</p>
+            <input type="text" id="name-input" class="modal-input" placeholder="Tera asli naam..." autocomplete="off">
+            <button class="modal-btn" onclick="saveName()">Entry Maaro!</button>
+        </div>
+    </div>
+
+    <div class="glow-orb"></div>
+    <div class="glow-orb purple"></div>
+
+    <div class="dashboard">
+        <header class="header">
+            <div>
+                <h1>10 JASMINE Hub</h1>
+                <p id="welcome-text">Aur <span></span> bhai, kya chal raha hai? <i style="cursor:pointer; opacity:0.5;" onclick="resetName()" title="Change Name">✏️</i></p>
+            </div>
+            <div style="text-align: right; background: rgba(255,0,0,0.1); padding: 5px 15px; border-radius: 50px; border: 1px solid red;">
+                <span style="color: #ff4444; font-size: 0.8rem; font-weight: 700;">Strictly NO Teachers 🚫</span>
+            </div>
+        </header>
+
+        <div class="quote-bar" id="quote-display">"Class 10: Padhai kal se pakka shuru karenge! 😂"</div>
+
+        <main class="main-content">
+            
+            <section class="glass-panel">
+                <h2 class="section-title">📅 Aaj Ka Torture (Timetable) <span id="today-date-text" style="color:#00f3ff; font-size:0.9rem;"></span></h2>
+                <div id="timetable-display" class="timetable-grid"></div>
+            </section>
+
+            <section class="glass-panel">
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab('download')">📚 Padhai & Notes</button>
+                    <button class="tab-btn" onclick="switchTab('chill')">😎 Chill Zone</button>
+                    <button class="tab-btn" onclick="switchTab('fame')">🏆 Hall of Fame</button>
+                </div>
+
+                <div id="download-tab" class="tab-content active">
+                    <div class="form-section" style="border-left: 4px solid #b026ff;">
+                        <h3>📤 Dost Ki Madad Kar (Upload Notes)</h3>
+                        <div style="display:flex; gap:10px; margin-bottom:10px; margin-top:15px;">
+                            <input type="text" id="resource-uploader-name" class="styled-input" placeholder="Tera Custom Naam (Optional)">
+                            <input type="text" id="resource-title" class="styled-input" placeholder="Topic Name (e.g. Physics Ch-1)">
+                        </div>
+                        <input type="file" id="resource-file" class="styled-input" style="padding: 9px;">
+                        <button class="upload-btn" onclick="handleFileUpload()">Upload Notes</button>
+                        <p id="upload-status" style="margin-top:10px; text-align:center;"></p>
+                    </div>
+
+                    <h3 style="margin: 20px 0 10px;">📥 Available Notes</h3>
+                    <p style="font-size:0.8rem; color:#ff4444; margin-bottom:15px;">* Tu sirf apne upload kiye hue notes delete kar sakta hai.</p>
+                    <div id="resource-list-display"></div>
+                </div>
+
+                <div id="chill-tab" class="tab-content">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                        
+                        <div class="chill-box" style="border-color: #ff0055; background: rgba(255,0,85,0.1);">
+                            <h3 style="color:#ff0055;">☠️ PTM Survival Kit</h3>
+                            <p style="font-size:0.8rem;">Maut ka doosra naam: PTM. Bachne ka tareeka dhoondo!</p>
+                            <button class="action-btn" style="background:#ff0055; color:#fff;" onclick="survivePTM()">Bachao Mujhe!</button>
+                            <h4 id="ptm-result" style="margin-top: 15px; color: #fff; font-style:italic;"></h4>
+                        </div>
+
+                        <div class="chill-box" style="border-color: #00f3ff;">
+                            <h3 style="color:#00f3ff;">🤥 Bahana Machine</h3>
+                            <button class="action-btn" style="background:#00f3ff; color:#000;" onclick="generateBahana()">HW Excuse</button>
+                            <h4 id="bahana-result" style="margin-top: 15px; color: #fff;"></h4>
+                        </div>
+                    </div>
+
+                    <div class="form-section" style="border-left: 4px solid #00ff88;">
+                        <h3 style="color: #00ff88;">🔮 Kaun Kya Banega? (Future Predictor)</h3>
+                        <p style="font-size:0.8rem; opacity:0.6; margin-bottom:10px;">Class 10 ke baad kiska kya haal hoga?</p>
+                        <div style="display:flex; gap:10px;">
+                            <input type="text" id="future-name" class="styled-input" placeholder="Dost ka naam...">
+                            <button class="upload-btn" style="background:#00ff88; color:#000;" onclick="predictFuture()">Bhavishya Dekho!</button>
+                        </div>
+                        <h3 id="future-result" style="text-align:center; margin-top:15px; color:#00ff88;"></h3>
+                    </div>
+
+                    <div class="form-section" style="border-left: 4px solid #00f3ff;">
+                        <h3 style="color:#00f3ff;">🗣️ Teacher Decoder (19 Dialogues)</h3>
+                        <select id="teacher-dialogue" class="styled-input" style="margin-top:15px;">
+                            <option value="">Select famous dialogue...</option>
+                            <option value="1">"Is this a class or a fish market?"</option>
+                            <option value="2">"I will separate you two!"</option>
+                            <option value="3">"Your batch is the worst batch ever."</option>
+                            <option value="4">"Pin drop silence required!"</option>
+                            <option value="5">"Copy mat karo, apna dimag lagao."</option>
+                            <option value="6">"Why are you laughing? Share the joke."</option>
+                            <option value="7">"Are you physically present but mentally absent?"</option>
+                            <option value="8">"Do you think I am a fool?"</option>
+                            <option value="9">"Bring your parents tomorrow."</option>
+                            <option value="10">"Those who want to talk, can leave the class."</option>
+                            <option value="11">"Who is talking at the back?"</option>
+                            <option value="12">"Get out of my class!"</option>
+                            <option value="13">"I am teaching for your benefit, not mine."</option>
+                            <option value="14">"Stand up on the bench."</option>
+                            <option value="15">"This is the board year, be serious."</option>
+                            <option value="16">"Where is your homework?"</option>
+                            <option value="17">"Why are you late?"</option>
+                            <option value="18">"Speak loudly, didn't you have breakfast?"</option>
+                            <option value="19">"I will deduct your internal marks."</option>
+                        </select>
+                        <button class="upload-btn" style="background:#00f3ff; color:#000;" onclick="decodeTeacher()">Translate</button>
+                        <h4 id="decode-result" style="margin-top:15px; font-style:italic; font-weight:400;"></h4>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>🤫 Secret Confession Wall</h3>
+                        <textarea id="confess-input" class="styled-input" style="margin-top:10px;" placeholder="Class ki secret baatein..."></textarea>
+                        <button class="upload-btn" style="background: #ff4444;" onclick="addConfession()">Post Secretly 👻</button>
+                        <div id="confession-list" style="margin-top: 20px;"></div>
+                    </div>
+                </div>
+
+                <div id="fame-tab" class="tab-content">
+                    
+                    <div class="form-section" style="border-left: 4px solid #ffaa00; background: rgba(255, 170, 0, 0.1);">
+                        <h3 style="color:#ffaa00;">📜 Fake Report Card (Beizzati)</h3>
+                        <p style="font-size:0.8rem; opacity:0.8; margin-bottom:10px;">Kiska result kharab karna hai?</p>
+                        <div style="display:flex; gap:10px;">
+                            <input type="text" id="report-name" class="styled-input" placeholder="Dost ka naam likh...">
+                            <button class="upload-btn" style="background:#ffaa00; color:#000;" onclick="generateFakeResult()">Result Nikaal!</button>
+                        </div>
+                        
+                        <div id="report-card-div" class="report-card">
+                            <h4>JASMINE PUBLIC SCHOOL</h4>
+                            <div style="font-weight:bold; margin-bottom:10px;">Student: <span id="rc-name"></span></div>
+                            <div class="report-row"><span>Bakaiti:</span> <span id="rc-bakaiti"></span></div>
+                            <div class="report-row"><span>Padhai (Maths):</span> <span id="rc-padhai"></span></div>
+                            <div class="report-row"><span>Teacher Ki Chamchagiri:</span> <span id="rc-chamchagiri"></span></div>
+                            <div class="report-row"><span>Flirting Level:</span> <span id="rc-flirt"></span></div>
+                            <div style="margin-top:10px; text-align:center; font-weight:bold; color:red;" id="rc-remark"></div>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                        <div class="chill-box" style="border-color: #ff0055; background: rgba(255,0,85,0.1);">
+                            <h3 style="color:#ff0055;">😈 Today's Dare</h3>
+                            <h4 id="daily-dare" style="margin-top:15px; color:#fff; font-style:italic;">"Teacher se pucho sir apki salary kitni hai?"</h4>
+                            <button class="action-btn" style="background:#ff0055; color:#fff;" onclick="getDare()">Naya Dare De!</button>
+                        </div>
+
+                        <div class="chill-box" style="border-color: #ffaa00;">
+                            <h3 style="color:#ffaa00;">📝 HW Scam Roulette</h3>
+                            <button class="action-btn" style="background:#ffaa00; width:100%; margin-top:10px;" onclick="spinHW()">Pata Laga!</button>
+                            <h4 id="hw-result" style="margin-top:15px; color:#fff;"></h4>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                        <div class="chill-box" style="border-color: #ffaa00;">
+                            <h3 style="color:#ffaa00;">📛 Tapori Name</h3>
+                            <input type="text" id="tapori-name" class="styled-input" placeholder="Dost ka naam...">
+                            <button class="action-btn" style="background:#ffaa00; width:100%;" onclick="generateTapori()">Naamkaran Kar!</button>
+                            <h3 id="tapori-result" style="margin-top:10px; color:#fff;"></h3>
+                        </div>
+
+                        <div class="chill-box" style="border-color: #00ff88;">
+                            <h3 style="color:#00ff88;">🎰 Bench Roulette</h3>
+                            <button class="action-btn" style="background:#00ff88; width:100%; margin-top:30px;" onclick="spinBench()">Spin Seat!</button>
+                            <h4 id="bench-result" style="margin-top:15px; color:#fff;"></h4>
+                        </div>
+                    </div>
+
+                    <div class="chill-box" style="border-color: #ff4444; background: rgba(255,0,0,0.05);">
+                        <h3 style="color:#ff4444;">🔥 Roast A Friend</h3>
+                        <input type="text" id="roast-name" class="styled-input" placeholder="Kiski beizzati karni hai?">
+                        <button class="action-btn" style="background:#ff4444; color:#fff; width:100%;" onclick="roastFriend()">Roast Kar!</button>
+                        <h4 id="roast-result" style="margin-top:10px; color:#fff; font-style:italic;"></h4>
+                    </div>
+
+                    <div style="text-align: right; margin-bottom: 15px;">
+                        <button class="upload-btn" style="background: transparent; border: 1px solid #0f0; color: #0f0; width: auto;" onclick="startHackerPrank()">🧑‍💻 Hack School Server</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <aside class="glass-panel notice-board">
+            <h2 class="section-title">📌 Class Gossips</h2>
+            <p style="font-size:0.75rem; color:#ff4444; margin-bottom:10px;">* Apni khud ki gossip tum delete kar sakte ho.</p>
+            <div style="display:flex; gap:5px; margin-bottom:15px;">
+                <input type="text" id="notice-content" class="styled-input" style="margin:0; padding:8px;" placeholder="Update likh...">
+                <button class="upload-btn" style="width:auto; padding:8px 15px;" onclick="addNotice()">Post</button>
+            </div>
+            <div id="notice-board-display"></div>
+        </aside>
+    </div>
+
+    <div id="chat-widget">
+        <div class="chat-header">
+            <span>Backbenchers Group</span>
+            <span style="cursor:pointer; font-size:1.2rem;" onclick="toggleChat()">✖</span>
+        </div>
+        <div id="chat-messages-display" class="chat-messages"></div>
+        <div class="chat-input-area">
+            <input type="text" id="chat-input" class="styled-input" style="margin:0;" placeholder="Message likh bhai...">
+            <button class="upload-btn" style="width:auto;" onclick="sendChatMessage()">Send</button>
+        </div>
+    </div>
+    <button class="chat-toggle-btn" id="chat-btn" onclick="toggleChat()">💬 Chat Khol</button>
+
+    <script>
+        // --- 1. SUPABASE SETUP ---
+        const SB_URL = "https://syrtilxcnldfxpdkcvbt.supabase.co";
+        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN5cnRpbHhjbmxkZnhwZGtjdmJ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4NDM1NzIsImV4cCI6MjA5MjQxOTU3Mn0.MsjkNDnIxd4B4DBgxl_pcN7FwVf5GmISNMYSMrhHj9E";
+        const supabaseObj = supabase.createClient(SB_URL, SB_KEY);
+
+        let userName = '';
+
+        // --- 2. APP INIT ---
+        document.addEventListener('DOMContentLoaded', () => {
+            userName = localStorage.getItem('portal_user') || '';
+            if (!userName) {
+                document.getElementById('name-modal').classList.add('active');
+            } else {
+                document.querySelector('#welcome-text span').textContent = userName;
+            }
+            
+            const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            document.getElementById('today-date-text').textContent = `(${days[new Date().getDay()]})`;
+            
+            loadTimetable();
+            fetchResources();
+            fetchNotices();
+            fetchChat();
+            fetchConfessions();
+        });
+
+        function saveName() {
+            const input = document.getElementById('name-input').value.trim();
+            if (!input) { alert("Bhai naam toh bata de!"); return; }
+            localStorage.setItem('portal_user', input);
+            userName = input;
+            document.getElementById('name-modal').classList.remove('active');
+            document.querySelector('#welcome-text span').textContent = userName;
+        }
+
+        function resetName() { 
+            localStorage.removeItem('portal_user'); 
+            userName = '';
+            document.getElementById('name-modal').classList.add('active');
+        }
+
+        // --- 3. ALL FUN FEATURES ---
+        function activatePanic() { document.getElementById('panic-screen').style.display = 'block'; }
+        function deactivatePanic() { document.getElementById('panic-screen').style.display = 'none'; }
+
+        setInterval(() => {
+            const quotes = ["Class 10: Padhai kal se pakka shuru karenge! 😂", "Discipline gaya bhaad mein, aakhri saal hai! 🎒", "Physics ke numericals out of syllabus lagte hain. 💔", "Backbenchers don't fail, they find new ways to learn. 😎", "Exams are temporary, Bakaiti is permanent! ✨"];
+            document.getElementById('quote-display').textContent = quotes[Math.floor(Math.random() * quotes.length)];
+        }, 5000);
+
+        // NEW: PTM SURVIVAL KIT
+        function survivePTM() {
+            const res = [
+                "Plan A: 'Mummy, Ritesh Sir ka kal fast hai, unhone bola hai PTM cancel.'",
+                "Plan B: 'Papa, school mein paint ho raha hai, building band hai.'",
+                "Plan C: 'Pet mein dard ka naatak kar, seedha hospital, no PTM!'",
+                "Plan D: 'Report card raste mein kutta kha gaya, sorry.'",
+                "Plan E: 'Sir kal chhutti pe hain, unki saali ki shaadi hai.'"
+            ];
+            document.getElementById('ptm-result').textContent = res[Math.floor(Math.random() * res.length)];
+        }
+
+        function generateFakeResult() {
+            const name = document.getElementById('report-name').value.trim();
+            if(!name) return alert("Kiska report card banana hai naam toh likh!");
+            
+            const card = document.getElementById('report-card-div');
+            card.style.display = 'block';
+            
+            document.getElementById('rc-name').textContent = name.toUpperCase();
+            document.getElementById('rc-bakaiti').textContent = "99/100 (Topper)";
+            document.getElementById('rc-padhai').textContent = Math.floor(Math.random() * 25) + "/100 (Fail)";
+            document.getElementById('rc-chamchagiri').textContent = Math.floor(Math.random() * 100) + "/100";
+            document.getElementById('rc-flirt').textContent = "-10/100 (Koi bhaav nahi deta)";
+            
+            const remarks = ["REMARK: Nithalla aadmi hai, iska kuch nahi hoga.", "REMARK: School se nikaalne ka time aa gaya hai.", "REMARK: Bakaiti mein PhD karega launda."];
+            document.getElementById('rc-remark').textContent = remarks[Math.floor(Math.random() * remarks.length)];
+        }
+
+        function generateBahana() {
+            const res = ["Sir, kal light chali gayi thi aur mombatti ne copy jala di.", "Mummy ne gusse mein mera HW dustbin mein daal diya.", "Sir main kal aya hi nahi tha.", "Copy bag mein hi reh gayi sir.", "Sir chote bhai ne copy faad di."];
+            document.getElementById('bahana-result').textContent = res[Math.floor(Math.random() * res.length)];
+        }
+
+        function spinBench() {
+            const res = ["1st Bench, Teacher ki naak ke niche 💀", "Last Bench, Bestie ke sath 🎉", "Window Seat, Bahar taadne ke liye 😍", "Akele baithega aaj bhai tu 🥲"];
+            document.getElementById('bench-result').textContent = res[Math.floor(Math.random() * res.length)];
+        }
+
+        function spinHW() {
+            const res = ["Topper se bheekh maangni padegi 😭", "Tera best friend de dega 😎", "Kal pakde jaoge, copy nahi milegi 💀", "Subah jaldi school aake chaap lena 🏃‍♂️"];
+            document.getElementById('hw-result').textContent = res[Math.floor(Math.random() * res.length)];
+        }
+
+        function getDare() {
+            const dares = ["Teacher se pucho sir apki salary kitni hai?", "Puri class mein ek zor ki khaansi (cough) kar.", "Apne aage wale ki copy chupke se chupa de.", "Teacher ko galat naam se bula (galti se).", "Class mein pen girane ki aawaz kar bar-bar."];
+            document.getElementById('daily-dare').textContent = `"${dares[Math.floor(Math.random() * dares.length)]}"`;
+        }
+
+        function generateTapori() {
+            const name = document.getElementById('tapori-name').value.trim();
+            if(!name) return;
+            const p = ["Khujli", "Circuit", "Bouncer", "Haddi", "Phatichar", "Ranchoddas", "Dedh-Footiya"];
+            document.getElementById('tapori-result').textContent = p[Math.floor(Math.random() * p.length)] + " " + name;
+        }
+
+        function roastFriend() {
+            const name = document.getElementById('roast-name').value.trim();
+            if(!name) return alert("Kiski beizzati karni hai naam toh likh!");
+            const roasts = [`${name}, teri shakal dekh ke toh macchar bhi rasta badal lete hain. 🦟`, `${name} ke dimag mein ghutne aur ghutno mein dimag hai. 🧠`, `Agar bewakoofi ka award hota, toh ${name} first aata. 🏆`, `${name} bhai, tu zameen par bojh hai. 😂`];
+            document.getElementById('roast-result').textContent = roasts[Math.floor(Math.random() * roasts.length)];
+        }
+
+        function predictFuture() {
+            const name = document.getElementById('future-name').value.trim();
+            if(!name) return alert("Dost ka naam daal!");
+            const futures = ["Momo ki dukaan kholega 🥟", "Bada aadmi banega par single rahega 🥲", "Elon Musk ka driver banega 🚗", "Neta banega aur scam karega 😎", "Berozgar rahega bhai 😭"];
+            document.getElementById('future-result').textContent = futures[Math.floor(Math.random() * futures.length)];
+        }
+
+        function decodeTeacher() {
+            const val = document.getElementById('teacher-dialogue').value;
+            const map = { 
+                "1": "Asli Matlab: Meri aukaat kam pad rahi hai inko chup karane mein. 😭", 
+                "2": "Asli Matlab: Main do doston ko alag karne ki naakaam koshish karunga. 👯‍♂️", 
+                "3": "Asli Matlab: Ye line main pichle 10 saal se har batch ko bol raha hoon. 🤡",
+                "4": "Asli Matlab: Bhai saans bhi mat lena ab. 🤫",
+                "5": "Asli Matlab: Pata hai mujhe guide me se chaap ke aaye ho. 📖",
+                "6": "Asli Matlab: Mujhe bhi hasna hai, bata de bhai. 😆",
+                "7": "Asli Matlab: Kahan khoye ho bhai? Crush ki yaad aa rahi hai? 🤔",
+                "8": "Asli Matlab: Haan main hoon, par tum bol nahi sakte. 🤡",
+                "9": "Asli Matlab: Teri toh lanka lagne wali hai beta kal. 💀",
+                "10": "Asli Matlab: Pata hai koi nahi jayega, bas darane ke liye bol raha hoon. 😂",
+                "11": "Asli Matlab: Pata hai mujhe kaun hai, par main dhoondhne ka naatak karunga. 🕵️‍♂️",
+                "12": "Asli Matlab: 5 minute baad bahar se wapas bula lunga. 🏃",
+                "13": "Asli Matlab: Mujhe toh salary mil hi jayegi, tumhara future kharab hoga. 💸",
+                "14": "Asli Matlab: Ab poori class ke saamne teri beizzati hogi. 🤦‍♂️",
+                "15": "Asli Matlab: Padh lo beta warna principal meri class lagayega. 😰",
+                "16": "Asli Matlab: Kutta kha gaya tera homework? 🐕",
+                "17": "Asli Matlab: Traffic ka naya bahana leke aana aaj. 🚥",
+                "18": "Asli Matlab: Kaan kharab ho gaye hain mere, thoda tez bol. 👂",
+                "19": "Asli Matlab: Meri aakhri aur sabse badi dhamki yahi hai! 😈"
+            };
+            document.getElementById('decode-result').textContent = map[val] || "";
+        }
+
+        let hackerInterval;
+        function startHackerPrank() {
+            const screen = document.getElementById('hacker-screen');
+            const textDiv = document.getElementById('hacker-text');
+            screen.style.display = 'block'; textDiv.innerHTML = '';
+            const lines = ["INITIALIZING HACK...", "Bypassing School Firewall... [OK]", "Accessing Principal's Computer... [OK]", "Downloading Exam Papers...", "WARNING: Security Breach Detected!", "UPLOADING VIRUS TO SCHOOL DB... 💀", "SYSTEM LOCKED! YOU ARE CAUGHT. 😂 (Click to exit)"];
+            let i = 0;
+            hackerInterval = setInterval(() => {
+                if(i < lines.length) { textDiv.innerHTML += lines[i] + "<br><br>"; i++; } 
+                else clearInterval(hackerInterval);
+            }, 800);
+        }
+        function closeHackerPrank() { document.getElementById('hacker-screen').style.display = 'none'; clearInterval(hackerInterval); }
+
+        // --- 4. TIMETABLE ---
+        const timetableData = {
+            1: [{ time: '7:30', sub: 'MAT', teacher: 'Amit' }, { time: '8:05', sub: 'HIN', teacher: 'Vinod' }, { time: '8:40', sub: 'ENG', teacher: 'Brijendra' }, { time: '9:25', sub: 'CHE-P', teacher: 'Ritesh' }, { time: 'LUNCH', sub: 'BREAK', teacher: '' }, { time: '10:30', sub: 'GEO/ECO', teacher: 'Dheeraj' }, { time: '11:15', sub: 'HIS/POL', teacher: 'Sumit' }, { time: '11:55', sub: 'PHY-P', teacher: 'Manoj' }],
+            2: [{ time: '7:30', sub: 'TEST', teacher: 'Amit' }, { time: '8:40', sub: 'MAT', teacher: 'Amit' }, { time: '9:25', sub: 'INF.TEC', teacher: 'Suresh' }, { time: 'LUNCH', sub: 'BREAK', teacher: '' }, { time: '10:30', sub: 'GEO/ECO', teacher: 'Dheeraj' }, { time: '11:15', sub: 'ENG', teacher: 'Brijendra' }, { time: '11:55', sub: 'HIN', teacher: 'Vinod' }],
+            3: [{ time: '7:30', sub: 'PHY', teacher: 'Manoj' }, { time: '8:05', sub: 'MAT', teacher: 'Amit' }, { time: '8:40', sub: 'CHE', teacher: 'Ritesh' }, { time: '9:25', sub: 'HIN', teacher: 'Vinod' }, { time: 'LUNCH', sub: 'BREAK', teacher: '' }, { time: '10:30', sub: 'GEO/ECO', teacher: 'Dheeraj' }, { time: '11:15', sub: 'ENG', teacher: 'Brijendra' }, { time: '11:55', sub: 'HIS/POL', teacher: 'Sumit' }],
+            4: [{ time: '7:30', sub: 'ENG', teacher: 'Brijendra' }, { time: '8:05', sub: 'HIS/POL', teacher: 'Sumit' }, { time: '8:40', sub: 'HIN', teacher: 'Vinod' }, { time: '9:25', sub: 'SW', teacher: 'Abhishek' }, { time: 'LUNCH', sub: 'BREAK', teacher: '' }, { time: '10:30', sub: 'BIO', teacher: 'Sameer' }, { time: '11:15', sub: 'MAT', teacher: 'Amit' }, { time: '11:55', sub: 'MAT', teacher: 'Amit' }],
+            5: [{ time: '7:30', sub: 'MAT', teacher: 'Amit' }, { time: '8:05', sub: 'INF.TEC', teacher: 'Suresh' }, { time: '8:40', sub: 'PHY', teacher: 'Manoj' }, { time: '9:25', sub: 'HIN', teacher: 'Vinod' }, { time: 'LUNCH', sub: 'BREAK', teacher: '' }, { time: '10:30', sub: 'CHE', teacher: 'Ritesh' }, { time: '11:15', sub: 'HIS/POL', teacher: 'Sumit' }, { time: '11:55', sub: 'ENG', teacher: 'Brijendra' }],
+            6: [{ time: '7:30', sub: 'MAT', teacher: 'Amit' }, { time: '8:05', sub: 'INF.TEC', teacher: 'Suresh' }, { time: '8:40', sub: 'ENG', teacher: 'Brijendra' }, { time: '9:25', sub: 'HIN', teacher: 'Vinod' }, { time: 'LUNCH', sub: 'BREAK', teacher: '' }, { time: '10:30', sub: 'PHY EDU', teacher: 'Abhishek' }, { time: '11:15', sub: 'BIO', teacher: 'Sameer' }, { time: '11:55', sub: 'BIO-P', teacher: 'Sameer' }]
+        };
+
+        function loadTimetable() {
+            const d = new Date().getDay();
+            const display = document.getElementById('timetable-display');
+            display.innerHTML = '';
+            if (!timetableData[d]) return display.innerHTML = '<p style="grid-column:1/-1;text-align:center;">Aaj chhutti hai, aish kar! 🎉</p>';
+            timetableData[d].forEach(p => {
+                const isB = p.sub === 'BREAK';
+                display.innerHTML += `<div class="time-slot" style="${isB ? 'border-color:#b026ff;' : ''}"><div class="time">${p.time}</div><div class="subject" style="${isB ? 'color:#b026ff;' : ''}">${p.sub}</div><div class="teacher-name">${p.teacher}</div></div>`;
+            });
+        }
+
+        // --- 5. SUPABASE DB CALLS ---
+        async function fetchConfessions() {
+            try {
+                const { data } = await supabaseObj.from('confessions').select('*').order('created_at', { ascending: false });
+                const list = document.getElementById('confession-list');
+                list.innerHTML = '';
+                if(data) data.forEach(c => list.innerHTML += `<div class="confession-card">" ${c.text} " <br><small style="opacity:0.5;">- Ghost 👻</small></div>`);
+            } catch(e) {}
+        }
+        async function addConfession() {
+            const inp = document.getElementById('confess-input');
+            if(!inp.value.trim()) return alert("Likh toh le!");
+            await supabaseObj.from('confessions').insert([{ text: inp.value.trim() }]);
+            inp.value = ''; fetchConfessions();
+        }
+
+        async function fetchResources() {
+            try {
+                const { data } = await supabaseObj.from('Resources').select('*').order('created_at', { ascending: false });
+                const list = document.getElementById('resource-list-display');
+                list.innerHTML = '';
+                if (data && data.length > 0) {
+                    data.forEach(r => {
+                        const delBtn = (r.teacher === userName) ? `<button class="del-note-btn" onclick="deleteResource(${r.id})">🗑️ Delete</button>` : '';
+                        list.innerHTML += `
+                        <div class="resource-item">
+                            <div>
+                                <h4>${r.title}</h4>
+                                <p style="font-size:0.8rem; opacity:0.6;">by ${r.teacher}</p>
+                            </div>
+                            <div>
+                                <a href="${r.url}" target="_blank" class="download-btn">View</a>
+                                ${delBtn}
+                            </div>
+                        </div>`;
+                    });
+                } else {
+                    list.innerHTML = '<p style="opacity:0.5; text-align:center;">Koi notes nahi hai bhai.</p>';
+                }
+            } catch(e) {}
+        }
+
+        async function handleFileUpload() {
+            const title = document.getElementById('resource-title').value.trim();
+            const teacherInput = document.getElementById('resource-uploader-name').value.trim();
+            const teacher = teacherInput ? teacherInput : userName;
+            const fileInput = document.getElementById('resource-file');
+            const file = fileInput.files[0];
+            const status = document.getElementById('upload-status');
+            
+            if(!title || !file) return alert("Title aur File daal bhai!");
+            
+            status.textContent = 'Uploading... ⏳';
+            status.style.color = '#ffaa00';
+            
+            const path = `portal/${Date.now()}_${file.name}`;
+            const { error: upErr } = await supabaseObj.storage.from('class-files').upload(path, file);
+            if(upErr) {
+                status.textContent = 'Error: ' + upErr.message;
+                status.style.color = '#ff4444';
+                return;
+            }
+            
+            const { data: urlData } = supabaseObj.storage.from('class-files').getPublicUrl(path);
+            const { error: dbErr } = await supabaseObj.from('Resources').insert([{ title, teacher, file_Name: file.name, url: urlData.publicUrl }]);
+            
+            if(dbErr) {
+                status.textContent = 'Error: ' + dbErr.message;
+                status.style.color = '#ff4444';
+                return;
+            }
+            
+            status.textContent = '✅ Success!';
+            status.style.color = '#00ff88';
+            document.getElementById('resource-title').value = ''; 
+            document.getElementById('resource-uploader-name').value = ''; 
+            fileInput.value = '';
+            fetchResources();
+            
+            setTimeout(() => { status.textContent = ''; }, 3000);
+        }
+
+        async function deleteResource(id) {
+            if (confirm('Sachi mein notes delete karna hai?')) {
+                await supabaseObj.from('Resources').delete().eq('id', id);
+                fetchResources();
+            }
+        }
+
+        async function fetchNotices() {
+            try {
+                const { data } = await supabaseObj.from('notices').select('*').order('created_at', { ascending: false });
+                const d = document.getElementById('notice-board-display');
+                d.innerHTML = '';
+                if(data) {
+                    data.forEach(n => {
+                        const delBtn = (n.teacher === userName) ? `<span style="cursor:pointer; font-size:0.8rem; margin-left:10px; color:#ff4444; font-weight:700;" onclick="deleteNotice(${n.id})" title="Delete Gossip">🗑️ Delete</span>` : '';
+                        d.innerHTML += `
+                        <div class="notice-item">
+                            <p>${n.text}</p>
+                            <small style="color:#00f3ff;">- ${n.teacher} ${delBtn}</small>
+                        </div>`;
+                    });
+                }
+            } catch(e) {}
+        }
+
+        async function addNotice() {
+            const inp = document.getElementById('notice-content');
+            if(!inp.value.trim()) return;
+            await supabaseObj.from('notices').insert([{ text: inp.value.trim(), teacher: userName }]);
+            inp.value = ''; fetchNotices();
+        }
+
+        async function deleteNotice(id) {
+            if(confirm("Yeh gossip sach mein uda de?")) {
+                await supabaseObj.from('notices').delete().eq('id', id);
+                fetchNotices();
+            }
+        }
+
+        async function fetchChat() {
+            try {
+                const { data } = await supabaseObj.from('messages').select('*').order('created_at', { ascending: true });
+                const d = document.getElementById('chat-messages-display');
+                d.innerHTML = '';
+                if(data) data.forEach(m => {
+                    const s = m.sender === userName;
+                    d.innerHTML += `<div class="message ${s ? 'sent' : 'received'}"><div style="font-size:0.7rem; color:${s?'#000':'#b026ff'}; font-weight:800; margin-bottom:3px;">${m.sender}</div>${m.text}</div>`;
+                });
+                d.scrollTop = d.scrollHeight; 
+            } catch(e) {}
+        }
+        async function sendChatMessage() {
+            const inp = document.getElementById('chat-input');
+            if (!inp.value.trim()) return;
+            const t = inp.value; inp.value = '';
+            await supabaseObj.from('messages').insert([{ text: t, sender: userName }]);
+            fetchChat();
+        }
+
+        // --- 6. UI UTILS ---
+        function switchTab(id) { 
+            document.querySelectorAll('.tab-btn, .tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelector(`[onclick="switchTab('${id}')"]`).classList.add('active');
+            document.getElementById(id + '-tab').classList.add('active');
+        }
+        function toggleChat() { document.getElementById('chat-widget').classList.toggle('active'); fetchChat(); }
+    </script>
+</body>
+</html>
