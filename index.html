@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Class 10 - Interactive Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         /* Base & Resets */
         * {
@@ -64,6 +65,337 @@
             background: linear-gradient(90deg, #00f3ff, #b026ff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+        }
+        .modal-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            color: white;
+            font-size: 1rem;
+            width: 100%;
+            outline: none;
+            margin-bottom: 20px;
+        }
+        .modal-input:focus { border-color: #00f3ff; }
+        .modal-btn {
+            background: #b026ff;
+            color: white;
+            border: none;
+            padding: 10px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(176, 38, 255, 0.4);
+            transition: all 0.3s ease;
+        }
+        .modal-btn:hover {
+            box-shadow: 0 0 25px rgba(176, 38, 255, 0.6);
+            transform: translateY(-2px);
+        }
+        .modal-cancel-btn {
+            background: transparent;
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: all 0.3s ease;
+        }
+        .modal-cancel-btn:hover { background: rgba(255,255,255,0.1); }
+
+        /* Main Layout */
+        .dashboard {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 30px;
+        }
+
+        /* Glassmorphism Cards */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .glass-panel:hover {
+            border-color: rgba(0, 243, 255, 0.2);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(0, 243, 255, 0.1);
+        }
+
+        /* Header Section */
+        .header {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #00f3ff, #b026ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        #welcome-text { font-size: 1rem; color: rgba(255,255,255,0.6); margin-top: 5px; }
+        #welcome-text span { color: white; font-weight: 600; }
+        .teacher-badge {
+            background: rgba(176, 38, 255, 0.1);
+            border: 1px solid rgba(176, 38, 255, 0.3);
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            color: #d470ff;
+        }
+
+        /* Left Column: Resources & Timetable */
+        .main-content { display: flex; flex-direction: column; gap: 30px; }
+
+        /* Timetable */
+        .section-title { font-size: 1.2rem; font-weight: 600; margin-bottom: 20px; color: #fff; display: flex; align-items: center; gap: 10px; }
+        #today-date-text { font-size: 0.9rem; color: #00f3ff; margin-left: 10px; }
+        .timetable-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; }
+        .time-slot { background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.05); padding: 15px; border-radius: 16px; text-align: center; transition: all 0.3s ease; }
+        .time-slot:hover { background: rgba(0, 243, 255, 0.1); border-color: rgba(0, 243, 255, 0.4); transform: translateY(-5px); }
+        .time { font-size: 0.8rem; color: #00f3ff; margin-bottom: 5px; }
+        .subject { font-weight: 600; font-size: 1.1rem; }
+        .teacher-name { font-size: 0.8rem; color: rgba(255,255,255,0.6); margin-top: 3px; }
+
+        /* Resource Hub (Tabs) */
+        .tabs { display: flex; gap: 15px; margin-bottom: 25px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 15px; }
+        .tab-btn { background: none; border: none; color: rgba(255, 255, 255, 0.5); font-size: 1rem; cursor: pointer; padding: 8px 16px; border-radius: 8px; transition: all 0.3s ease; }
+        .tab-btn.active { background: rgba(0, 243, 255, 0.1); color: #00f3ff; border: 1px solid rgba(0, 243, 255, 0.2); }
+        .tab-content { display: none; animation: fadeIn 0.4s ease; }
+        .tab-content.active { display: block; }
+
+        /* Resource/Notice Forms */
+        .form-section { background: rgba(0, 0, 0, 0.1); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 20px; }
+        .form-section h3 { font-size: 1.1rem; margin-bottom: 15px; }
+        .input-group { margin-bottom: 15px; }
+        .input-label { display: block; font-size: 0.8rem; color: rgba(255,255,255,0.6); margin-bottom: 5px; }
+        .styled-input { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); padding: 10px; border-radius: 8px; color: white; width: 100%; outline: none; }
+        .styled-input:focus { border-color: #b026ff; }
+        .styled-textarea { resize: vertical; min-height: 80px; }
+        
+        /* Buttons */
+        .upload-btn { background: #b026ff; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
+        .upload-btn:hover { background: #d470ff; transform: scale(1.03); }
+        .notice-action-btn { font-size: 0.8rem; padding: 5px 10px; border-radius: 5px; margin-left: 5px; cursor: pointer; border: none; }
+        .edit-notice-btn { background: #ffaa00; color: #000; }
+        .delete-notice-btn { background: #ff4444; color: white; }
+
+        /* Resource List */
+        .resource-list { display: flex; flex-direction: column; gap: 15px; }
+        .resource-item { display: flex; justify-content: space-between; align-items: center; background: rgba(0, 0, 0, 0.2); padding: 15px 20px; border-radius: 12px; border-left: 4px solid #00f3ff; }
+        .resource-info p { font-size: 0.8rem; color: rgba(255, 255, 255, 0.5); }
+        .download-btn { background: rgba(0, 243, 255, 0.1); border: 1px solid #00f3ff; color: #00f3ff; padding: 8px 16px; border-radius: 8px; cursor: pointer; text-decoration: none; transition: all 0.3s ease; }
+        .download-btn:hover { background: #00f3ff; color: #000; box-shadow: 0 0 15px rgba(0, 243, 255, 0.5); }
+
+        /* NCERT Banner */
+        .ncert-banner { background: rgba(0, 243, 255, 0.05); border: 1px solid rgba(0, 243, 255, 0.3); border-radius: 12px; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .ncert-banner h4 { color: #00f3ff; margin-bottom: 5px; display: flex; align-items: center; gap: 8px; }
+        .ncert-banner p { font-size: 0.8rem; color: rgba(255,255,255,0.7); }
+
+        /* Sidebar: Notice Board */
+        .notice-board { height: fit-content; }
+        .notice-item { padding: 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        .notice-item:last-child { border-bottom: none; }
+        .notice-date { font-size: 0.75rem; color: #b026ff; margin-bottom: 5px; font-weight: 600; }
+
+        /* Group Chat Widget */
+        #chat-widget { position: fixed; bottom: 30px; right: 30px; width: 350px; height: 450px; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; display: flex; flex-direction: column; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5); z-index: 100; transform: translateY(120%); transition: transform 0.4s ease; }
+        #chat-widget.active { transform: translateY(0); }
+        .chat-header { padding: 15px; background: linear-gradient(90deg, rgba(0, 243, 255, 0.1), rgba(176, 38, 255, 0.1)); border-bottom: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px 20px 0 0; display: flex; justify-content: space-between; align-items: center; font-weight: 600; }
+        .chat-messages { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .chat-input-area { padding: 15px; display: flex; gap: 10px; border-top: 1px solid rgba(255, 255, 255, 0.1); }
+        .chat-input { flex: 1; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); padding: 10px; border-radius: 8px; color: white; outline: none; }
+        .chat-input:focus { border-color: #00f3ff; }
+        .message { padding: 8px 12px; border-radius: 10px; font-size: 0.9rem; max-width: 85%; animation: fadeIn 0.3s ease; }
+        .message.received { background: rgba(255,255,255,0.05); align-self: flex-start; }
+        .message.sent { background: #00f3ff; color: #000; align-self: flex-end; font-weight: 500; }
+        .message-sender { font-size: 0.7rem; color: #b026ff; margin-bottom: 2px; }
+
+        .chat-toggle-btn { position: fixed; bottom: 30px; right: 30px; background: #00f3ff; color: #000; border: none; padding: 15px 25px; border-radius: 50px; font-weight: 600; cursor: pointer; z-index: 99; transition: all 0.3s ease; box-shadow: 0 0 20px rgba(0, 243, 255, 0.4); }
+        .chat-toggle-btn:hover { transform: translateY(-3px); box-shadow: 0 0 30px rgba(0, 243, 255, 0.6); }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Ambient Glows */
+        .glow-orb { position: fixed; width: 400px; height: 400px; background: #00f3ff; border-radius: 50%; filter: blur(150px); opacity: 0.2; top: -100px; left: -100px; z-index: -1; animation: pulse 8s infinite alternate ease-in-out; }
+        .glow-orb.purple { background: #b026ff; top: auto; bottom: -100px; right: -100px; animation-delay: -4s; }
+        @keyframes pulse { 0% { transform: scale(1); opacity: 0.1; } 100% { transform: scale(1.2); opacity: 0.3; } }
+        
+        @media (max-width: 900px) { .dashboard { grid-template-columns: 1fr; } .header { flex-direction: column; align-items: flex-start; gap: 15px; } }
+    </style>
+</head>
+<body>
+
+    <div id="name-modal">
+        <div class="modal-content">
+            <h2>Welcome to your Class Portal</h2>
+            <p style="color: rgba(255,255,255,0.6); margin-bottom: 20px;">Please enter your name to personalize the experience.</p>
+            <input type="text" id="name-input" class="modal-input" placeholder="Your Name" autocomplete="off">
+            <button id="submit-name" class="modal-btn" onclick="saveName()">Let's Go!</button>
+        </div>
+    </div>
+
+    <div id="password-modal">
+        <div class="modal-content">
+            <h2>Teacher Authentication</h2>
+            <p style="color: rgba(255,255,255,0.6); margin-bottom: 20px;">Please enter the passcode to access admin tools.</p>
+            <input type="password" id="password-input" class="modal-input" placeholder="Passcode" autocomplete="off">
+            <button class="modal-btn" onclick="verifyPassword()">Unlock</button>
+            <button class="modal-cancel-btn" onclick="closePasswordModal()">Cancel</button>
+        </div>
+    </div>
+
+    <div class="glow-orb"></div>
+    <div class="glow-orb purple"></div>
+
+    <div class="dashboard">
+        <header class="header">
+            <div>
+                <h1>Class 10 JASMINE Portal</h1>
+                <p id="welcome-text">Welcome back, <span></span> <i style="cursor:pointer; font-style:normal; margin-left:8px;" onclick="resetName()" title="Change Name">✏️</i></p>
+            </div>
+            <div class="teacher-badge">
+                 Class Teacher: Choudhary Ritesh
+            </div>
+        </header>
+
+        <main class="main-content">
+            
+            <section class="glass-panel">
+                <h2 class="section-title">📅 Today's Timetable <span id="today-date-text"></span></h2>
+                <div id="timetable-display" class="timetable-grid">
+                    </div>
+            </section>
+
+            <section class="glass-panel">
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab('download')">📥 Download Resources</button>
+                    <button class="tab-btn" onclick="switchTab('upload')">📤 Teacher Admin</button>
+                </div>
+
+                <div id="download-tab" class="tab-content active">
+                    
+                    <div class="ncert-banner">
+                        <div>
+                            <h4>📚 Official NCERT Books</h4>
+                            <p>Direct link to the national portal for all Class 10 subjects.</p>
+                        </div>
+                        <a href="https://ncert.nic.in/textbook.php" target="_blank" class="download-btn">Open Portal</a>
+                    </div>
+
+                    <div id="resource-list-display" class="resource-list">
+                        </div>
+                </div>
+
+                <div id="upload-tab" class="tab-content">
+                    
+                    <div class="form-section">
+                        <h3>📤 Add New Resource</h3>
+                        <div class="input-group">
+                            <label class="input-label">Teacher Name</label>
+                            <input type="text" id="resource-teacher-name" class="styled-input" placeholder="e.g., Mr. Amit Yadav">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Resource Title</label>
+                            <input type="text" id="resource-title" class="styled-input" placeholder="e.g., Physics Assignment 3">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Select File</label>
+                            <input type="file" id="resource-file" class="styled-input">
+                        </div>
+                        <button class="upload-btn" onclick="handleFileUpload()">Add Resource</button>
+                        <p id="upload-status" style="margin-top:10px; font-size:0.9rem;"></p>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>🗂️ Manage Resources</h3>
+                        <div id="resource-manager-list" style="margin-top:15px; font-size:0.9rem;">
+                            </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>📌 Manage Notices</h3>
+                        <div class="input-group">
+                            <label class="input-label">Notice Content</label>
+                            <textarea id="notice-content" class="styled-input styled-textarea" placeholder="Type new notice here..."></textarea>
+                        </div>
+                        <input type="hidden" id="editing-notice-id">
+                        <button class="upload-btn" onclick="addOrEditNotice()">Add Notice</button>
+                        <div id="notice-manager-list" style="margin-top:20px; font-size:0.9rem;">
+                            </div>
+                    </div>
+
+                </div>
+            </section>
+
+        </main>
+
+        <aside class="glass-panel notice-board">
+            <h2 class="section-title">📌 Official Notices</h2>
+            <div id="notice-board-display">
+                </div>
+        </aside>
+    </div>
+
+    <div id="chat-widget">
+        <div class="chat-header">
+            <span>Universal Class Chat</span>
+            <div>
+                <span style="cursor:pointer; margin-right: 15px;" onclick="clearChat()" title="Clear Chat History">🗑️</span>
+                <span style="cursor:pointer;" onclick="toggleChat()">✖</span>
+            </div>
+        </div>
+        <div id="chat-messages-display" class="chat-messages">
+            </div>
+        <div class="chat-input-area">
+            <input type="text" id="chat-input" class="chat-input" placeholder="Type a message..." autocomplete="off">
+            <button class="upload-btn" onclick="sendChatMessage()">Send</button>
+        </div>
+    </div>
+    
+    <button class="chat-toggle-btn" id="chat-btn" onclick="toggleChat()">💬 Open Chat</button>
+
+    <script>
+        // --- 1. SUPABASE CONFIGURATION ---
+        const SB_URL = "https://syrtilxcnldfxpdkcvbt.supabase.co";
+        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN5cnRpbHhjbmxkZnhwZGtjdmJ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4NDM1NzIsImV4cCI6MjA5MjQxOTU3Mn0.MsjkNDnIxd4B4DBgxl_pcN7FwVf5GmISNMYSMrhHj9E";
+        const supabaseObj = supabase.createClient(SB_URL, SB_KEY);
+
+        // --- 2. State Initialization ---
+        let userName = sessionStorage.getItem('user_name') || '';
+        let teacherAuthenticated = false;
+        let localNotices = []; // For editing functionality
+
+        // --- 3. Initial Render & Page Load ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeName();
+            updateTodayDate();
+            loadTimetable();
+            fetchResources();
+            fetchNotices();
+            fetchChat();
+        });
+
+        // --- 4. Name Entry Logic ---
+        function initializeName() {
+            const modal = document.getElementById('name-modal');
+            const welcomeSpan = document.querySelector('#welcome-text span');
+            if (userName === '') {
+                modal.classList.add('active');
+            } else {
+                     -webkit-text-fill-color: transparent;
         }
         .modal-input {
             background: rgba(255, 255, 255, 0.05);
